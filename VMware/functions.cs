@@ -1,4 +1,4 @@
-﻿namespace Vmware
+﻿namespace mod_vmware
 {
     using System;
     using System.Collections.Generic;
