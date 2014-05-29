@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
+    using System.Net;
     using VMware.Vim;
     public class functions
     {
@@ -119,10 +120,9 @@
         /// to establish a connection to the SDK server in order to query and perform tasks.
         /// </summary>
         /// <param name="viServer">A properly validated SDK URI</param>
-        /// <param name="viUser">A user with permissions on the server</param>
-        /// <param name="viPassword">The password of the user with permissions on the server</param>
+        /// <param name="Credential">A System.Net Credential object to store user/pass</param>
         /// <returns>A VimClient object</returns>
-        public static VimClient ConnectServer(string viServer, string viUser, string viPassword)
+        public static VimClient ConnectServer(string viServer, NetworkCredential Credential)
         {
             //
             // Establish a connetion to the provided sdk server
@@ -130,6 +130,11 @@
             VimClient vimClient = new VimClient();
             ServiceContent vimServiceContent = new ServiceContent();
             UserSession vimSession = new UserSession();
+            //
+            // Get the user/pass from the credential object
+            //
+            string viUser = Credential.UserName;
+            string viPassword = Credential.Password;
             //
             // Connect over https to the /sdk page
             //
