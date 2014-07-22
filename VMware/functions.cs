@@ -236,5 +236,49 @@
             }
             return Datastores;
         }
+        public static Hashtable GetDatacenter(NetworkCredential Credential, string Server, string MoRefString)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            NameValueCollection Filter = new NameValueCollection();
+            ManagedObjectReference beginEntity = null;
+            if (MoRefString != null)
+            {
+                beginEntity = new ManagedObjectReference(MoRefString);
+            }
+            ClusterComputeResource SelectedCluster = GetObject<ClusterComputeResource>(vimClient, beginEntity, null);
+            Filter.Add("hostfolder", SelectedCluster.Parent.Value);
+            Datacenter itmDatacenter = GetEntity<Datacenter>(vimClient, null, Filter, null);
+            Hashtable DC = new Hashtable();
+            DC.Add(itmDatacenter.Name, itmDatacenter.MoRef);
+            return DC;
+        }
+        public static Hashtable GetPortGroup(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            NameValueCollection Filter = new NameValueCollection();
+            ManagedObjectReference beginEntity = null;
+            if (MoRefString != null)
+            {
+                beginEntity = new ManagedObjectReference(MoRefString);
+            }
+            ClusterComputeResource SelectedCluster = GetObject<ClusterComputeResource>(vimClient, beginEntity, null);
+            Filter.Add("hostfolder", SelectedCluster.Parent.Value);
+            Datacenter itmDatacenter = GetEntity<Datacenter>(vimClient, null, Filter, null);
+            if (Value != null)
+            {
+                Filter.Add("name", Value);
+            }
+            else
+            {
+                Filter = null;
+            }
+            List<DistributedVirtualPortgroup> lstPortGroups = GetEntities<DistributedVirtualPortgroup>(vimClient, itmDatacenter.MoRef, Filter, null);
+            Hashtable PortGroup = new Hashtable();
+            foreach (DistributedVirtualPortgroup itmPortGroup in lstPortGroups)
+            {
+                PortGroup.Add(itmPortGroup.Name, itmPortGroup.MoRef);
+            }
+            return PortGroup;
+        }
     }
 }
