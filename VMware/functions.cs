@@ -163,6 +163,11 @@
             public string Name { get; set; }
             public string Value { get; set; }
         }
+        public class SimpleDS
+        {
+            public string Name { get; set; }
+            public string Value { get; set; }
+        }
         /// <summary>
         /// Return a hashtable of Virtual Machine name and Moref for use in the web app
         /// </summary>
@@ -225,7 +230,7 @@
             vimClient.Disconnect();
             return Customizations;
         }
-        public static Hashtable GetDatastore(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        public static List<SimpleDS> GetDatastore(NetworkCredential Credential, string Server, string MoRefString, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
@@ -242,11 +247,11 @@
                 Datastore clusterDS = (Datastore)dsView;
                 lstDatastores.Add(clusterDS);
             }
-            Hashtable Datastores = new Hashtable();
+            List<SimpleDS> Datastores = new List<SimpleDS>();
             lstDatastores = lstDatastores.OrderBy(thisStore => thisStore.Info.FreeSpace).ToList();
             foreach (Datastore itmDatastore in lstDatastores)
             {
-                Datastores.Add(itmDatastore.Name, itmDatastore.MoRef);
+                Datastores.Add(new SimpleDS { Name = itmDatastore.Name, Value = itmDatastore.MoRef.ToString() });
             }
             vimClient.Disconnect();
             return Datastores;
