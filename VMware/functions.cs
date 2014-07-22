@@ -280,5 +280,23 @@
             }
             return PortGroup;
         }
+        public static Hashtable GetResourcePool(NetworkCredential Credential, string Server, string MoRefString)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            NameValueCollection Filter = new NameValueCollection();
+            ManagedObjectReference beginEntity = null;
+            if (MoRefString != null)
+            {
+                beginEntity = new ManagedObjectReference(MoRefString);
+            }
+            Filter.Add("parent", beginEntity.Value);
+            List<ResourcePool> lstResourcePools = GetEntities<ResourcePool>(vimClient, null, Filter, null);
+            Hashtable ResourcePools = new Hashtable();
+            foreach (ResourcePool itmResourcePool in lstResourcePools)
+            {
+                ResourcePools.Add(itmResourcePool.Name, itmResourcePool.Value);
+            }
+            return ResourcePools;
+        }
     }
 }
