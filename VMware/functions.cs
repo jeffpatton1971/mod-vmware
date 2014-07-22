@@ -217,5 +217,24 @@
             }
             return Customizations;
         }
+        public static Hashtable GetDatastore(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            NameValueCollection Filter = new NameValueCollection();
+            ManagedObjectReference beginEntity = null;
+            if (MoRefString != null)
+            {
+                beginEntity = new ManagedObjectReference(MoRefString);
+            }
+            ClusterComputeResource SelectedCluster = GetObject<ClusterComputeResource>(vimClient, beginEntity, null);
+            Hashtable Datastores = new Hashtable();
+            foreach (ManagedObjectReference dsMoRef in SelectedCluster.Datastore)
+            {
+                ViewBase dsView = vimClient.GetView(dsMoRef, null);
+                Datastore clusterDS = (Datastore)dsView;
+                Datastores.Add(clusterDS.Name, clusterDS.MoRef);
+            }
+            return Datastores;
+        }
     }
 }
