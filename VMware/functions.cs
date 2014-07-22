@@ -179,7 +179,7 @@
                 Filter = null;
             }
             ManagedObjectReference beginEntity = null;
-            if (MoRefString != "")
+            if (MoRefString != null)
             {
                 beginEntity = new ManagedObjectReference(MoRefString);
             }
