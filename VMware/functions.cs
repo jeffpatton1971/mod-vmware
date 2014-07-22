@@ -230,12 +230,18 @@
                 beginEntity = new ManagedObjectReference(MoRefString);
             }
             ClusterComputeResource SelectedCluster = GetObject<ClusterComputeResource>(vimClient, beginEntity, null);
-            Hashtable Datastores = new Hashtable();
+            List<Datastore> lstDatastores = new List<Datastore>();
             foreach (ManagedObjectReference dsMoRef in SelectedCluster.Datastore)
             {
                 ViewBase dsView = vimClient.GetView(dsMoRef, null);
                 Datastore clusterDS = (Datastore)dsView;
-                Datastores.Add(clusterDS.Name, clusterDS.MoRef);
+                lstDatastores.Add(clusterDS);
+            }
+            Hashtable Datastores = new Hashtable();
+            lstDatastores = lstDatastores.OrderBy(thisStore => thisStore.Info.FreeSpace).ToList();
+            foreach (Datastore itmDatastore in lstDatastores)
+            {
+                Datastores.Add(itmDatastore.Name, itmDatastore.MoRef);
             }
             vimClient.Disconnect();
             return Datastores;
