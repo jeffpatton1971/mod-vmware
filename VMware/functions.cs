@@ -248,7 +248,7 @@
                 lstDatastores.Add(clusterDS);
             }
             List<SimpleDS> Datastores = new List<SimpleDS>();
-            lstDatastores = lstDatastores.OrderBy(thisStore => thisStore.Info.FreeSpace).ToList();
+            lstDatastores = lstDatastores.OrderByDescending(thisStore => thisStore.Info.FreeSpace).ToList();
             foreach (Datastore itmDatastore in lstDatastores)
             {
                 Datastores.Add(new SimpleDS { Name = itmDatastore.Name, Value = itmDatastore.MoRef.ToString() });
