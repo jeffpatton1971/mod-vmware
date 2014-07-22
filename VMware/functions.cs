@@ -163,6 +163,23 @@
             public string Name { get; set; }
             public string Value { get; set; }
         }
+        public class SimpleClone
+        {
+            public string Name { get; set; }
+            public string ClusterMoRef { get; set; }
+            public string SourceVmMoRef { get; set; }
+            public string DatastoreMoRef { get; set; }
+            public string PortGroupMoRef { get; set; }
+            public string OsCustomizationSpec { get; set; }
+            public string ResourcePoolMoRef { get; set; }
+            public int Processor { get; set; }
+            public int Memeory { get; set; }
+            public string DnsSuffix { get; set; }
+            public string Nameserver { get; set; }
+            public string IpAddress { get; set; }
+            public string Netmask { get; set; }
+            public string Gateway { get; set; }
+        }
         /// <summary>
         /// Return a hashtable of Virtual Machine name and Moref for use in the web app
         /// </summary>
@@ -312,10 +329,74 @@
             Hashtable ResourcePools = new Hashtable();
             foreach (ResourcePool itmResourcePool in lstResourcePools)
             {
-                ResourcePools.Add(itmResourcePool.Name, itmResourcePool.Value);
+                ResourcePools.Add(itmResourcePool.Name, itmResourcePool.MoRef.ToString());
             }
             vimClient.Disconnect();
             return ResourcePools;
+        }
+        public static void CloneVM(NetworkCredential Credential, string Server, SimpleClone NewVm)
+        {
+            //
+            // Assume all data in newvm has been validated, just do the clone
+            //
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            NameValueCollection Filter = new NameValueCollection();
+            //
+            // Get the cluster
+            //
+            ManagedObjectReference ClusterMoRef = new ManagedObjectReference(NewVm.ClusterMoRef);
+            ClusterComputeResource Cluster = GetObject<ClusterComputeResource>(vimClient, ClusterMoRef, null);
+            //
+            // Get the datacenter
+            //
+            Filter.Add("hostFolder", Cluster.Parent.Value);
+            Datacenter Datacenter = GetEntity<Datacenter>(vimClient, null, Filter, null);
+            Filter.Remove("hostFolder");
+            //
+            // Get the hosts
+            //
+            ManagedObjectReference[] hostMoRefs = Cluster.Host;
+            //
+            // Randomly select a given host
+            //
+            Random rand = new Random();
+            HostSystem Host = GetObject<HostSystem>(vimClient, hostMoRefs[rand.Next(0, hostMoRefs.Count())], null);
+            //
+            // Get the SourceVM
+            //
+            ManagedObjectReference SourceVmMoRef = new ManagedObjectReference(NewVm.SourceVmMoRef);
+            VirtualMachine SourceVm = GetObject<VirtualMachine>(vimClient, SourceVmMoRef, null);
+            //
+            // Get the datastore
+            //
+            ManagedObjectReference DatastoreMoRef = new ManagedObjectReference(NewVm.DatastoreMoRef);
+            Datastore Datastore = GetObject<Datastore>(vimClient, DatastoreMoRef, null);
+            //
+            // Get the PortGroup
+            //
+            ManagedObjectReference PortGroupMoRef = new ManagedObjectReference(NewVm.PortGroupMoRef);
+            DistributedVirtualPortgroup PortGroup = GetObject<DistributedVirtualPortgroup>(vimClient, PortGroupMoRef, null);
+            //
+            // Get the CustomizationSpec
+            //
+            CustomizationSpecManager specManager = GetObject<CustomizationSpecManager>(vimClient, vimClient.ServiceContent.CustomizationSpecManager, null);
+            CustomizationSpecItem specItem = specManager.GetCustomizationSpec(NewVm.OsCustomizationSpec);
+            //
+            // Create a new VirtualMachineCloneSpec
+            //
+            VirtualMachineCloneSpec vmCloneSpec = new VirtualMachineCloneSpec();
+            vmCloneSpec.Location = new VirtualMachineRelocateSpec();
+            vmCloneSpec.Location.Datastore = Datastore.MoRef;
+            vmCloneSpec.Location.Host = Host.MoRef;
+            //
+            // Get the ResourcePool
+            //
+            ManagedObjectReference ResourcePoolMoRef = new ManagedObjectReference(NewVm.ResourcePoolMoRef);
+            ResourcePool blah = new ResourcePool(vimClient, ResourcePoolMoRef);
+            //
+            // Disconnect
+            //
+            vimClient.Disconnect();
         }
     }
 }
