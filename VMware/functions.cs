@@ -158,12 +158,7 @@
                 return null;
             }
         }
-        public class SimpleVM
-        {
-            public string Name { get; set; }
-            public string Value { get; set; }
-        }
-        public class SimpleDS
+        public class SimpleObject
         {
             public string Name { get; set; }
             public string Value { get; set; }
@@ -176,7 +171,7 @@
         /// <param name="Server">The name of the vSphere server to connect to</param>
         /// <param name="Value">something to filter on</param>
         /// <returns>A hashtable that contains the name and string moref</returns>
-        public static List<SimpleVM> GetVm(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        public static List<SimpleObject> GetVm(NetworkCredential Credential, string Server, string MoRefString, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
@@ -195,25 +190,25 @@
             }
             List<VirtualMachine> lstVirtualMachines = GetEntities<VirtualMachine>(vimClient, beginEntity, Filter, null);
             lstVirtualMachines = lstVirtualMachines.OrderBy(thisVm => thisVm.Name).ToList();
-            List<SimpleVM> VirtualMachines = new List<SimpleVM>();
+            List<SimpleObject> VirtualMachines = new List<SimpleObject>();
             foreach (VirtualMachine itmVm in lstVirtualMachines)
             {
-                VirtualMachines.Add(new SimpleVM { Name = itmVm.Name, Value = itmVm.MoRef.ToString() });
+                VirtualMachines.Add(new SimpleObject { Name = itmVm.Name, Value = itmVm.MoRef.ToString() });
             }
             vimClient.Disconnect();
             return VirtualMachines;
         }
-        public static Hashtable GetCluster(NetworkCredential Credential, string Server, string Value)
+        public static List<SimpleObject> GetCluster(NetworkCredential Credential, string Server, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
             Filter.Add("name", Value);
             List<ClusterComputeResource> lstClusters = GetEntities<ClusterComputeResource>(vimClient, null, Filter, null);
             lstClusters = lstClusters.OrderBy(thisCluster => thisCluster.Name).ToList();
-            Hashtable Clusters = new Hashtable();
+            List<SimpleObject> Clusters = new List<SimpleObject>();
             foreach (ClusterComputeResource itmClster in lstClusters)
             {
-                Clusters.Add(itmClster.Name, itmClster.MoRef.ToString());
+                Clusters.Add(new SimpleObject { Name = itmClster.Name, Value = itmClster.MoRef.ToString() });
             }
             vimClient.Disconnect();
             return Clusters;
@@ -230,7 +225,7 @@
             vimClient.Disconnect();
             return Customizations;
         }
-        public static List<SimpleDS> GetDatastore(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        public static List<SimpleObject> GetDatastore(NetworkCredential Credential, string Server, string MoRefString, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
@@ -247,11 +242,11 @@
                 Datastore clusterDS = (Datastore)dsView;
                 lstDatastores.Add(clusterDS);
             }
-            List<SimpleDS> Datastores = new List<SimpleDS>();
+            List<SimpleObject> Datastores = new List<SimpleObject>();
             lstDatastores = lstDatastores.OrderByDescending(thisStore => thisStore.Info.FreeSpace).ToList();
             foreach (Datastore itmDatastore in lstDatastores)
             {
-                Datastores.Add(new SimpleDS { Name = itmDatastore.Name, Value = itmDatastore.MoRef.ToString() });
+                Datastores.Add(new SimpleObject { Name = itmDatastore.Name, Value = itmDatastore.MoRef.ToString() });
             }
             vimClient.Disconnect();
             return Datastores;
