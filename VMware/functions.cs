@@ -1,6 +1,7 @@
 ﻿namespace mod_vmware
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Net;
@@ -155,6 +156,34 @@
                 //Error_Panel.Visible = true;
                 return null;
             }
+        }
+        /// <summary>
+        /// Return a hashtable of Virtual Machine name and Moref for use in the web app
+        /// </summary>
+        /// <param name="Credential">A NetworkCredential object that contains the username 
+        /// and password with rights to the server</param>
+        /// <param name="Server">The name of the vSphere server to connect to</param>
+        /// <param name="Value">something to filter on</param>
+        /// <returns>A hashtable that contains the name and string moref</returns>
+        public static Hashtable GetVmHash(NetworkCredential Credential, string Server, string Value)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            NameValueCollection Filter = new NameValueCollection();
+            if (Value != null)
+            {
+                Filter.Add("name", Value);
+            }
+            else
+            {
+                Filter = null;
+            }
+            List<VirtualMachine> lstVirtualMachines = GetEntities<VirtualMachine>(vimClient, null, Filter, null);
+            Hashtable VirtualMachines = new Hashtable();
+            foreach (VirtualMachine itmVm in lstVirtualMachines)
+            {
+                VirtualMachines.Add(itmVm.Name, itmVm.MoRef.ToString());
+            }
+            return VirtualMachines;
         }
     }
 }
