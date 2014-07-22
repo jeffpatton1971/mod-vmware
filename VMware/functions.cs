@@ -166,7 +166,7 @@
         /// <param name="Server">The name of the vSphere server to connect to</param>
         /// <param name="Value">something to filter on</param>
         /// <returns>A hashtable that contains the name and string moref</returns>
-        public static Hashtable GetVmHash(NetworkCredential Credential, string Server, string Value)
+        public static Hashtable GetVmHash(NetworkCredential Credential, string Server, string MoRefString, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
@@ -178,7 +178,12 @@
             {
                 Filter = null;
             }
-            List<VirtualMachine> lstVirtualMachines = GetEntities<VirtualMachine>(vimClient, null, Filter, null);
+            ManagedObjectReference beginEntity = null;
+            if (MoRefString != "")
+            {
+                beginEntity = new ManagedObjectReference(MoRefString);
+            }
+            List<VirtualMachine> lstVirtualMachines = GetEntities<VirtualMachine>(vimClient, beginEntity, Filter, null);
             lstVirtualMachines = lstVirtualMachines.OrderBy(thisVm => thisVm.Name).ToList();
             Hashtable VirtualMachines = new Hashtable();
             foreach (VirtualMachine itmVm in lstVirtualMachines)
