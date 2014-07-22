@@ -158,6 +158,11 @@
                 return null;
             }
         }
+        public class SimpleVM
+        {
+            public string Name { get; set; }
+            public string Value { get; set; }
+        }
         /// <summary>
         /// Return a hashtable of Virtual Machine name and Moref for use in the web app
         /// </summary>
@@ -166,7 +171,7 @@
         /// <param name="Server">The name of the vSphere server to connect to</param>
         /// <param name="Value">something to filter on</param>
         /// <returns>A hashtable that contains the name and string moref</returns>
-        public static Hashtable GetVm(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        public static List<SimpleVM> GetVm(NetworkCredential Credential, string Server, string MoRefString, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
@@ -185,10 +190,10 @@
             }
             List<VirtualMachine> lstVirtualMachines = GetEntities<VirtualMachine>(vimClient, beginEntity, Filter, null);
             lstVirtualMachines = lstVirtualMachines.OrderBy(thisVm => thisVm.Name).ToList();
-            Hashtable VirtualMachines = new Hashtable();
+            List<SimpleVM> VirtualMachines = new List<SimpleVM>();
             foreach (VirtualMachine itmVm in lstVirtualMachines)
             {
-                VirtualMachines.Add(itmVm.Name, itmVm.MoRef.ToString());
+                VirtualMachines.Add(new SimpleVM { Name = itmVm.Name, Value = itmVm.MoRef.ToString() });
             }
             vimClient.Disconnect();
             return VirtualMachines;
