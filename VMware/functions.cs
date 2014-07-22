@@ -185,5 +185,18 @@
             }
             return VirtualMachines;
         }
+        public static Hashtable GetClusterHash(NetworkCredential Credential, string Server, string Value)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            NameValueCollection Filter = new NameValueCollection();
+            Filter.Add("name", Value);
+            List<ClusterComputeResource> lstClusters = GetEntities<ClusterComputeResource>(vimClient, null, Filter, null);
+            Hashtable Clusters = new Hashtable();
+            foreach (ClusterComputeResource itmClster in lstClusters)
+            {
+                Clusters.Add(itmClster.Name, itmClster.MoRef.ToString());
+            }
+            return Clusters;
+        }
     }
 }
