@@ -269,6 +269,7 @@
             ClusterComputeResource SelectedCluster = GetObject<ClusterComputeResource>(vimClient, beginEntity, null);
             Filter.Add("hostfolder", SelectedCluster.Parent.Value);
             Datacenter itmDatacenter = GetEntity<Datacenter>(vimClient, null, Filter, null);
+            Filter.Remove("name");
             if (Value != null)
             {
                 Filter.Add("name", Value);
