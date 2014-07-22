@@ -6,6 +6,7 @@
     using System.Collections.Specialized;
     using System.Net;
     using VMware.Vim;
+    using System.Linq;
     public class functions
     {
         /// <summary>
@@ -178,6 +179,7 @@
                 Filter = null;
             }
             List<VirtualMachine> lstVirtualMachines = GetEntities<VirtualMachine>(vimClient, null, Filter, null);
+            lstVirtualMachines = lstVirtualMachines.OrderBy(thisVm => thisVm.Name).ToList();
             Hashtable VirtualMachines = new Hashtable();
             foreach (VirtualMachine itmVm in lstVirtualMachines)
             {
@@ -191,6 +193,7 @@
             NameValueCollection Filter = new NameValueCollection();
             Filter.Add("name", Value);
             List<ClusterComputeResource> lstClusters = GetEntities<ClusterComputeResource>(vimClient, null, Filter, null);
+            lstClusters = lstClusters.OrderBy(thisCluster => thisCluster.Name).ToList();
             Hashtable Clusters = new Hashtable();
             foreach (ClusterComputeResource itmClster in lstClusters)
             {
