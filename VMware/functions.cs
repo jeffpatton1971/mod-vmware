@@ -206,5 +206,16 @@
             }
             return Clusters;
         }
+        public static Hashtable GetOsCustomization(NetworkCredential Credential, string Server)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            CustomizationSpecManager specManager = GetObject<CustomizationSpecManager>(vimClient, vimClient.ServiceContent.CustomizationSpecManager, null);
+            Hashtable Customizations = new Hashtable();
+            foreach (CustomizationSpecInfo specInfo in specManager.Info)
+            {
+                Customizations.Add(specInfo.Name, specInfo.Name + "." + specInfo.Type);
+            }
+            return Customizations;
+        }
     }
 }
