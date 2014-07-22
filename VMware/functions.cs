@@ -174,7 +174,8 @@
             public string ResourcePoolMoRef { get; set; }
             public int Processor { get; set; }
             public int Memeory { get; set; }
-            public string DnsSuffix { get; set; }
+            public string winSuffix { get; set; }
+            public string linSuffix { get; set; }
             public string Nameserver { get; set; }
             public string IpAddress { get; set; }
             public string Netmask { get; set; }
@@ -379,20 +380,74 @@
             //
             // Get the CustomizationSpec
             //
+            char[] splitChar = new char[] { '.' };
+            string[] thisSpec = NewVm.OsCustomizationSpec.Split(splitChar);
+            string specName = thisSpec[0];
+            string specType = thisSpec[1];
             CustomizationSpecManager specManager = GetObject<CustomizationSpecManager>(vimClient, vimClient.ServiceContent.CustomizationSpecManager, null);
-            CustomizationSpecItem specItem = specManager.GetCustomizationSpec(NewVm.OsCustomizationSpec);
+            CustomizationSpecItem specItem = specManager.GetCustomizationSpec(specName);
             //
             // Create a new VirtualMachineCloneSpec
             //
             VirtualMachineCloneSpec vmCloneSpec = new VirtualMachineCloneSpec();
             vmCloneSpec.Location = new VirtualMachineRelocateSpec();
+            //
+            // Assign Datastore
+            //
             vmCloneSpec.Location.Datastore = Datastore.MoRef;
+            //
+            // Assign Host
+            //
             vmCloneSpec.Location.Host = Host.MoRef;
             //
             // Get the ResourcePool
             //
             ManagedObjectReference ResourcePoolMoRef = new ManagedObjectReference(NewVm.ResourcePoolMoRef);
-            ResourcePool blah = new ResourcePool(vimClient, ResourcePoolMoRef);
+            ResourcePool ResourcePool = GetObject<ResourcePool>(vimClient, ResourcePoolMoRef, null);
+            //
+            // Assign ResourcePool
+            //
+            vmCloneSpec.Location.Pool = ResourcePool.MoRef;
+            //
+            // Add selected clonespec to this CloneSpec
+            //
+            vmCloneSpec.Customization = specItem.Spec;
+            //
+            // Handle hostname for Windows or Linux
+            //
+            if (specType == "Windows")
+            {
+                //
+                // Create a Windows Sysprep object
+                //
+                CustomizationSysprep winIdent = (CustomizationSysprep)specItem.Spec.Identity;
+                CustomizationFixedName hostname = new CustomizationFixedName();
+                hostname.Name = NewVm.Name;
+                winIdent.UserData.ComputerName = hostname;
+                //
+                // Store identity in the CloneSpec
+                //
+                vmCloneSpec.Customization.Identity = winIdent;
+            }
+            if (specType == "Linux")
+            {
+                //
+                // Create a linux Sysprep object
+                //
+                CustomizationLinuxPrep linIdent = (CustomizationLinuxPrep)specItem.Spec.Identity;
+                CustomizationFixedName hostname = new CustomizationFixedName();
+                hostname.Name = NewVm.Name;
+                linIdent.HostName = hostname;
+                linIdent.Domain = NewVm.linSuffix;
+                //
+                // Store identity in the CloneSpec
+                //
+                vmCloneSpec.Customization.Identity = linIdent;
+            }
+            //
+            // Create a ConfigSpec
+            //
+
             //
             // Disconnect
             //
