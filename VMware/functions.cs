@@ -166,7 +166,7 @@
         /// <param name="Server">The name of the vSphere server to connect to</param>
         /// <param name="Value">something to filter on</param>
         /// <returns>A hashtable that contains the name and string moref</returns>
-        public static Hashtable GetVmHash(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        public static Hashtable GetVm(NetworkCredential Credential, string Server, string MoRefString, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
@@ -190,9 +190,10 @@
             {
                 VirtualMachines.Add(itmVm.Name, itmVm.MoRef.ToString());
             }
+            vimClient.Disconnect();
             return VirtualMachines;
         }
-        public static Hashtable GetClusterHash(NetworkCredential Credential, string Server, string Value)
+        public static Hashtable GetCluster(NetworkCredential Credential, string Server, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
@@ -204,6 +205,7 @@
             {
                 Clusters.Add(itmClster.Name, itmClster.MoRef.ToString());
             }
+            vimClient.Disconnect();
             return Clusters;
         }
         public static Hashtable GetOsCustomization(NetworkCredential Credential, string Server)
@@ -215,6 +217,7 @@
             {
                 Customizations.Add(specInfo.Name, specInfo.Name + "." + specInfo.Type);
             }
+            vimClient.Disconnect();
             return Customizations;
         }
         public static Hashtable GetDatastore(NetworkCredential Credential, string Server, string MoRefString, string Value)
@@ -234,6 +237,7 @@
                 Datastore clusterDS = (Datastore)dsView;
                 Datastores.Add(clusterDS.Name, clusterDS.MoRef);
             }
+            vimClient.Disconnect();
             return Datastores;
         }
         public static Hashtable GetDatacenter(NetworkCredential Credential, string Server, string MoRefString)
@@ -250,6 +254,7 @@
             Datacenter itmDatacenter = GetEntity<Datacenter>(vimClient, null, Filter, null);
             Hashtable DC = new Hashtable();
             DC.Add(itmDatacenter.Name, itmDatacenter.MoRef);
+            vimClient.Disconnect();
             return DC;
         }
         public static Hashtable GetPortGroup(NetworkCredential Credential, string Server, string MoRefString, string Value)
@@ -278,6 +283,7 @@
             {
                 PortGroup.Add(itmPortGroup.Name, itmPortGroup.MoRef);
             }
+            vimClient.Disconnect();
             return PortGroup;
         }
         public static Hashtable GetResourcePool(NetworkCredential Credential, string Server, string MoRefString)
@@ -296,6 +302,7 @@
             {
                 ResourcePools.Add(itmResourcePool.Name, itmResourcePool.Value);
             }
+            vimClient.Disconnect();
             return ResourcePools;
         }
     }
