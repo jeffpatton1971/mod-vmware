@@ -173,13 +173,13 @@
             public string OsCustomizationSpec { get; set; }
             public string ResourcePoolMoRef { get; set; }
             public int Processor { get; set; }
-            public int Memory { get; set; }
+            public long Memory { get; set; }
             public string winSuffix { get; set; }
             public string linSuffix { get; set; }
-            public string Nameserver { get; set; }
+            public string[] Nameserver { get; set; }
             public string IpAddress { get; set; }
             public string Netmask { get; set; }
-            public string Gateway { get; set; }
+            public string[] Gateway { get; set; }
         }
         /// <summary>
         /// Return a hashtable of Virtual Machine name and Moref for use in the web app
@@ -455,7 +455,7 @@
             //
             // Allocate memory
             //
-            vmCloneSpec.Config.MemoryMB = (long)(NewVm.Memory * 1024);
+            vmCloneSpec.Config.MemoryMB = NewVm.Memory;
             //
             // Configure the first network card
             //
@@ -468,9 +468,7 @@
             //
             // Convert the single dns entry to an array
             //
-            string[] Nameserver = new string[1];
-            Nameserver[0] = NewVm.Nameserver;
-            vmCloneSpec.Customization.GlobalIPSettings.DnsServerList = Nameserver;
+            vmCloneSpec.Customization.GlobalIPSettings.DnsServerList = NewVm.Nameserver;
             //
             // Create a network device
             //
@@ -506,9 +504,7 @@
             //
             // Assign gateway
             //
-            string[] Gateway = new string[1];
-            Gateway[0] = NewVm.Gateway;
-            vmCloneSpec.Customization.NicSettingMap[0].Adapter.Gateway = Gateway;
+            vmCloneSpec.Customization.NicSettingMap[0].Adapter.Gateway = NewVm.Gateway;
             //
             // Create network backing information
             //
@@ -541,6 +537,7 @@
             ManagedObjectReference CloneTaskMoRef = new ManagedObjectReference();
             CloneTaskMoRef = SourceVm.CloneVM_Task(Datacenter.VmFolder, NewVm.Name, vmCloneSpec);
             Task CloneTask = new Task(vimClient, CloneTaskMoRef);
+            //
             // Disconnect
             //
             vimClient.Disconnect();
