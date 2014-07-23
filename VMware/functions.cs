@@ -499,6 +499,7 @@
             //
             // Assign Netmask
             //
+            vmCloneSpec.Customization.NicSettingMap[0].Adapter = new CustomizationIPSettings();
             vmCloneSpec.Customization.NicSettingMap[0].Adapter.Ip = ipAddress;
             vmCloneSpec.Customization.NicSettingMap[0].Adapter.SubnetMask = NewVm.Netmask;
             //
