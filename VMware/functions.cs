@@ -173,7 +173,7 @@
             public string OsCustomizationSpec { get; set; }
             public string ResourcePoolMoRef { get; set; }
             public int Processor { get; set; }
-            public int Memeory { get; set; }
+            public int Memory { get; set; }
             public string winSuffix { get; set; }
             public string linSuffix { get; set; }
             public string Nameserver { get; set; }
@@ -447,8 +447,100 @@
             //
             // Create a ConfigSpec
             //
-
+            vmCloneSpec.Config = new VirtualMachineConfigSpec();
             //
+            // Number of CPUs
+            //
+            vmCloneSpec.Config.NumCPUs = NewVm.Processor;
+            //
+            // Allocate memory
+            //
+            vmCloneSpec.Config.MemoryMB = (long)(NewVm.Memory * 1024);
+            //
+            // Configure the first network card
+            //
+            vmCloneSpec.Customization.NicSettingMap = new CustomizationAdapterMapping[1];
+            vmCloneSpec.Customization.NicSettingMap[0] = new CustomizationAdapterMapping();
+            //
+            // Set nameserver
+            //
+            vmCloneSpec.Customization.GlobalIPSettings = new CustomizationGlobalIPSettings();
+            //
+            // Convert the single dns entry to an array
+            //
+            string[] Nameserver = new string[1];
+            Nameserver[0] = NewVm.Nameserver;
+            vmCloneSpec.Customization.GlobalIPSettings.DnsServerList = Nameserver;
+            //
+            // Create a network device
+            //
+            VirtualDevice NetworkCard = new VirtualDevice();
+            foreach (VirtualDevice vDevice in SourceVm.Config.Hardware.Device)
+            {
+                //
+                // Get the network card
+                //
+                if (vDevice.DeviceInfo.Label.Contains("Network"))
+                {
+                    NetworkCard = vDevice;
+                }
+            }
+            //
+            // Create a DeviceSpec
+            //
+            vmCloneSpec.Config.DeviceChange = new VirtualDeviceConfigSpec[1];
+            vmCloneSpec.Config.DeviceChange[0] = new VirtualDeviceConfigSpec();
+            vmCloneSpec.Config.DeviceChange[0].Operation = VirtualDeviceConfigSpecOperation.edit;
+            vmCloneSpec.Config.DeviceChange[0].Device = NetworkCard;
+            //
+            // Define Network settings
+            // Assign IP Address
+            //
+            CustomizationFixedIp ipAddress = new CustomizationFixedIp();
+            ipAddress.IpAddress = NewVm.IpAddress;
+            //
+            // Assign Netmask
+            //
+            vmCloneSpec.Customization.NicSettingMap[0].Adapter.Ip = ipAddress;
+            vmCloneSpec.Customization.NicSettingMap[0].Adapter.SubnetMask = NewVm.Netmask;
+            //
+            // Assign gateway
+            //
+            string[] Gateway = new string[1];
+            Gateway[0] = NewVm.Gateway;
+            vmCloneSpec.Customization.NicSettingMap[0].Adapter.Gateway = Gateway;
+            //
+            // Create network backing information
+            //
+            VirtualEthernetCardDistributedVirtualPortBackingInfo NetworkBacking = new VirtualEthernetCardDistributedVirtualPortBackingInfo();
+            NetworkBacking.Port = new DistributedVirtualSwitchPortConnection();
+            //
+            // Connect to the virtual switch
+            //
+            VmwareDistributedVirtualSwitch VirtualSwitch = GetObject<VmwareDistributedVirtualSwitch>(vimClient, PortGroup.Config.DistributedVirtualSwitch, null);
+            //
+            // Connect the VM to the correct switch
+            //
+            NetworkBacking.Port.SwitchUuid = VirtualSwitch.Uuid;
+            //
+            // Connect the vm to the correct portgroup
+            //
+            NetworkBacking.Port.PortgroupKey = PortGroup.MoRef.Value;
+            vmCloneSpec.Config.DeviceChange[0].Device.Backing = NetworkBacking;
+            //
+            // Enable the network card at boot
+            //
+            vmCloneSpec.Config.DeviceChange[0].Device.Connectable = new VirtualDeviceConnectInfo();
+            vmCloneSpec.Config.DeviceChange[0].Device.Connectable.StartConnected = true;
+            vmCloneSpec.Config.DeviceChange[0].Device.Connectable.AllowGuestControl = true;
+            vmCloneSpec.Config.DeviceChange[0].Device.Connectable.Connected = true;
+            //
+            // Get the VM folder from the datacenter
+            // Perform the clone
+            //
+            ManagedObjectReference CloneTaskMoRef = new ManagedObjectReference();
+            CloneTaskMoRef = SourceVm.CloneVM_Task(Datacenter.VmFolder, NewVm.Name, vmCloneSpec);
+            Task CloneTask = new Task(vimClient, CloneTaskMoRef);
             // Disconnect
             //
             vimClient.Disconnect();
