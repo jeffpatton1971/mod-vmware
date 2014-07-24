@@ -244,6 +244,7 @@
             SimpleObject VirtualMachine = null;
             if (itmVirtualMachine != null)
             {
+                VirtualMachine = new SimpleObject();
                 VirtualMachine.Name = itmVirtualMachine.Name;
                 VirtualMachine.Value = itmVirtualMachine.MoRef.ToString();
             }
