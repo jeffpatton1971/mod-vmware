@@ -181,6 +181,13 @@
             public string Netmask { get; set; }
             public string[] Gateway { get; set; }
         }
+        public static string GetGuestFamily(NetworkCredential Credential, string Server, string MoRefString)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            ManagedObjectReference SourceVmMoRef = new ManagedObjectReference(MoRefString);
+            VirtualMachine SourceVm = GetObject<VirtualMachine>(vimClient, SourceVmMoRef, null);
+            return SourceVm.Guest.GuestFamily;
+        }
         /// <summary>
         /// Return a hashtable of Virtual Machine name and Moref for use in the web app
         /// </summary>
