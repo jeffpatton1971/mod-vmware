@@ -223,6 +223,32 @@
             vimClient.Disconnect();
             return VirtualMachines;
         }
+        public static SimpleObject GetVm(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            NameValueCollection Filter = new NameValueCollection();
+            if (Value != null)
+            {
+                Filter.Add("name", Value);
+            }
+            else
+            {
+                Filter = null;
+            }
+            ManagedObjectReference beginEntity = null;
+            if (MoRefString != null)
+            {
+                beginEntity = new ManagedObjectReference(MoRefString);
+            }
+            VirtualMachine itmVirtualMachine = GetEntity<VirtualMachine>(vimClient, beginEntity, Filter, null);
+            SimpleObject VirtualMachine = new SimpleObject();
+            if (itmVirtualMachine != null)
+            {
+                VirtualMachine.Name = itmVirtualMachine.Name;
+                VirtualMachine.Value = itmVirtualMachine.MoRef.ToString();
+            }
+            return VirtualMachine;
+        }
         public static List<SimpleObject> GetCluster(NetworkCredential Credential, string Server, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
