@@ -196,7 +196,7 @@
         /// <param name="Server">The name of the vSphere server to connect to</param>
         /// <param name="Value">something to filter on</param>
         /// <returns>A hashtable that contains the name and string moref</returns>
-        public static List<SimpleObject> GetVm(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        public static List<SimpleObject> GetVms(NetworkCredential Credential, string Server, string MoRefString, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
