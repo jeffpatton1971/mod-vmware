@@ -241,7 +241,7 @@
                 beginEntity = new ManagedObjectReference(MoRefString);
             }
             VirtualMachine itmVirtualMachine = GetEntity<VirtualMachine>(vimClient, beginEntity, Filter, null);
-            SimpleObject VirtualMachine = new SimpleObject();
+            SimpleObject VirtualMachine = null;
             if (itmVirtualMachine != null)
             {
                 VirtualMachine.Name = itmVirtualMachine.Name;
