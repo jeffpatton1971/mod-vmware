@@ -283,7 +283,7 @@
                     sObject.Value = itmVirtualMachine.MoRef.ToString();
                     break;
                 case "Datastore" :
-                    Datastore itmDatastore = GetObject<Datastore>(vimClient, MoRef, null);
+                    Datastore itmDatastore = GetEntity<Datastore>(vimClient, MoRef, null, null);
                     sObject.Name = itmDatastore.Name;
                     sObject.Value = itmDatastore.MoRef.ToString();
                     break;
