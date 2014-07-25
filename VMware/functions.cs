@@ -265,15 +265,35 @@
             vimClient.Disconnect();
             return Clusters;
         }
-        public static SimpleObject GetCluster(NetworkCredential Credential, string Server, string MoRefString)
+        public static SimpleObject GetVObject(NetworkCredential Credential, string Server, string MoRefString, string Type)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
-            ManagedObjectReference ClusterMoRef = new ManagedObjectReference(MoRefString);
-            ClusterComputeResource itmCluster = GetObject<ClusterComputeResource>(vimClient, ClusterMoRef, null);
-            SimpleObject Cluster = new SimpleObject();
-            Cluster.Name = itmCluster.Name;
-            Cluster.Value = itmCluster.Value.ToString();
-            return Cluster;
+            ManagedObjectReference MoRef = new ManagedObjectReference(MoRefString);
+            SimpleObject sObject = new SimpleObject();
+            switch (Type)
+            {
+                case "ClusterComputeResource" :
+                    ClusterComputeResource itmCluster = GetObject<ClusterComputeResource>(vimClient, MoRef, null);
+                    sObject.Name = itmCluster.Name;
+                    sObject.Value = itmCluster.Value.ToString();
+                    break;
+                case "VirtualMachine" :
+                    VirtualMachine itmVirtualMachine = GetObject<VirtualMachine>(vimClient, MoRef, null);
+                    sObject.Name = itmVirtualMachine.Name;
+                    sObject.Value = itmVirtualMachine.MoRef.ToString();
+                    break;
+                case "Datastore" :
+                    Datastore itmDatastore = GetObject<Datastore>(vimClient, MoRef, null);
+                    sObject.Name = itmDatastore.Name;
+                    sObject.Value = itmDatastore.MoRef.ToString();
+                    break;
+                case "PortGroup" :
+                    DistributedVirtualPortgroup itmDistributedVirtualPortGroup = GetObject<DistributedVirtualPortgroup>(vimClient, MoRef, null);
+                    sObject.Name = itmDistributedVirtualPortGroup.Name;
+                    sObject.Value = itmDistributedVirtualPortGroup.MoRef.ToString();
+                    break;
+            }
+            return sObject;
         }
         public static Hashtable GetOsCustomization(NetworkCredential Credential, string Server)
         {
