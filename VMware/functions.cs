@@ -278,7 +278,7 @@
                     sObject.Value = itmCluster.Value.ToString();
                     break;
                 case "VirtualMachine" :
-                    VirtualMachine itmVirtualMachine = GetObject<VirtualMachine>(vimClient, MoRef, null);
+                    VirtualMachine itmVirtualMachine = GetEntity<VirtualMachine>(vimClient, MoRef, null, null);
                     sObject.Name = itmVirtualMachine.Name;
                     sObject.Value = itmVirtualMachine.MoRef.ToString();
                     break;
