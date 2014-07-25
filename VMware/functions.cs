@@ -250,7 +250,7 @@
             }
             return VirtualMachine;
         }
-        public static List<SimpleObject> GetCluster(NetworkCredential Credential, string Server, string Value)
+        public static List<SimpleObject> GetClusters(NetworkCredential Credential, string Server, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
@@ -277,7 +277,7 @@
             vimClient.Disconnect();
             return Customizations;
         }
-        public static List<SimpleObject> GetDatastore(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        public static List<SimpleObject> GetDatastores(NetworkCredential Credential, string Server, string MoRefString, string Value)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
             NameValueCollection Filter = new NameValueCollection();
@@ -576,6 +576,13 @@
             // Disconnect
             //
             vimClient.Disconnect();
+        }
+        public static void blah(VimClient vimClient)
+        {
+            ManagedObjectReference vmMoRef = new ManagedObjectReference();
+            VirtualMachine vm = new VirtualMachine(vimClient, vmMoRef);
+            Folder vfol = new Folder(vimClient, vmMoRef);
+            //vfol.CreateVM_Task();
         }
     }
 }
