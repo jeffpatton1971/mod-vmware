@@ -265,6 +265,22 @@
             vimClient.Disconnect();
             return Clusters;
         }
+        public static SimpleObject GetCluster(NetworkCredential Credential, string Server, string MoRefString, string Value)
+        {
+            VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
+            NameValueCollection Filter = null;
+            if (Value != null)
+            {
+                Filter = new NameValueCollection();
+                Filter.Add("name", Value);
+            }
+            ManagedObjectReference ClusterMoRef = new ManagedObjectReference(MoRefString);
+            ClusterComputeResource itmCluster = GetEntity<ClusterComputeResource>(vimClient, ClusterMoRef, Filter, null);
+            SimpleObject Cluster = new SimpleObject();
+            Cluster.Name = itmCluster.Name;
+            Cluster.Value = itmCluster.Value.ToString();
+            return Cluster;
+        }
         public static Hashtable GetOsCustomization(NetworkCredential Credential, string Server)
         {
             VimClient vimClient = ConnectServer(ValidateServer(Server), Credential);
