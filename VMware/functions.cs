@@ -542,9 +542,15 @@
                 //
                 // Get the network card
                 //
-                if (vDevice.GetType().Name == "VirtualVmxnet3")
+                if (vDevice.Backing != null)
                 {
-                    NetworkCard = vDevice;
+                    if (vDevice.Backing.GetType().Name == "VirtualEthernetCardDistributedVirtualPortBackingInfo")
+                    {
+                        if (vDevice.GetType().Name == "VirtualVmxnet3")
+                        {
+                            NetworkCard = vDevice;
+                        }
+                    }
                 }
             }
             //
