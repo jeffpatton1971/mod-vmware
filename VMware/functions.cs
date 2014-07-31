@@ -542,7 +542,7 @@
                 //
                 // Get the network card
                 //
-                if (vDevice.DeviceInfo.Label.Contains("Network"))
+                if (vDevice.GetType().Name == "VirtualVmxnet3")
                 {
                     NetworkCard = vDevice;
                 }
